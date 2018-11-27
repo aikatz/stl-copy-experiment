@@ -1,5 +1,5 @@
 ### What is this?
-iA bit of code I wrote to observe the resulting behavior when an instance of an STL container using a custom allocator is copied from one region to another and its internal pointers are rewritten. The purpose was to make sure the allocator we are writing for Derecho will not encounter any fundamental problems in this area.
+A bit of code I wrote to observe the resulting behavior when an instance of an STL container using a custom allocator is copied from one region to another and its internal pointers are rewritten. The purpose was to make sure the allocator we are writing for Derecho will not encounter any fundamental problems in this area.
 
 ### To build:
 ```
