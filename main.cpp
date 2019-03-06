@@ -1,53 +1,171 @@
+#include <algorithm>
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
-#include <set>
-#include <stdlib.h>
+#include <utility>
 #include <unistd.h>
+#include <functional>
+
+#include <forward_list>
+#include <list>
+#include <set>
+#include <vector>
+#include <map>
 
 #include "config.h"
 #include "SequentialAllocator.h"
 
 using namespace std;
 
-int main() {
-  // Make a set, fill it with 0..9
-  using container_t = set<int, less<int>, SequentialAllocator<int>>;
-  container_t *my_container = new container_t();
+char* region;
+
+typedef pair<const int, int>                                      PairType;
+typedef vector<int, SequentialAllocator<int>>                     VectorType;
+typedef forward_list<int, SequentialAllocator<int>>               ForwardListType;
+typedef list<int, SequentialAllocator<int>>                       ListType;
+typedef set<int, std::less<>, SequentialAllocator<int>>           SetType;
+typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
+
+template<class ContainerType>
+void test_container_with_insert(std::string container_name) {
+  using allocator_t = typename ContainerType::allocator_type;
+  ContainerType my_container;
+
   for (int i = 0; i < 10; i++)
-    my_container->insert(i);
+    if (std::is_same<ContainerType, MapType>::value)
+      my_container.insert({i, i});
+    else
+      my_container.insert(end(my_container), i);
 
-  // Get the allocator and the region it uses
-  using allocator_t = container_t::allocator_type;
-  const allocator_t &alloc = my_container->get_allocator();
-  auto original_region = alloc.get_region();
+  printf("Testing container %s\n", container_name.c_str());
+  for_each(begin(my_container), end(my_container), [](int i){cout << i << " ";});
+  printf("\n\n");
+}
 
-  // Allocate a new region and copy the original into it
-  uintptr_t *new_region;
-  posix_memalign((void **) &new_region, getpagesize(), REGION_SIZE);
-  memcpy(new_region, original_region, REGION_SIZE);
+void testArray() {
 
-  // Rewrite the pointers inside the new region that point to the original region
-  for (int i = 0; i < REGION_SIZE; i++)
-    if (alloc.address_was_allocated(new_region[i]))
-      new_region[i] = (uintptr_t) new_region + ((uintptr_t) new_region[i] - (uintptr_t) original_region);
+}
 
-  // Rewrite the structure's internal pointers that point to the original region
-  for (int i = 0; i < sizeof(*my_container); i++)
-    if (alloc.address_was_allocated(((uintptr_t *) my_container)[i]))
-      ((uintptr_t *) my_container)[i] =
-        (uintptr_t) new_region + (((uintptr_t *) my_container)[i] - (uintptr_t) original_region);
-
-  // Zero and free the original version
-  memset(original_region, 0, REGION_SIZE);
-  free(original_region);
-
-  // Print the set to make sure things still work. Should print 0..9
-  for (auto e : *my_container) {
-    cout << e << " ";
+/*
+void testVector() {
+  VectorType container;
+  region = container.get_allocator().get_region();
+  for (int i = 0; i < 10; i++) {
+    auto last = end(container);
+    container.insert(last, i);
   }
-  cout << endl;
+  printf("Testing forward_list\n");
+  for_each(begin(container), end(container), [](int i){cout << i << " ";});
+  printf("\n\n");
+}
+*/
 
-  free(new_region);
-  delete my_container;
+void testDeque() {
+
+}
+
+void testForwardList() {
+
+}
+
+void testList() {
+  //get_offset() = 0;
+  SequentialAllocator<ListType> allocator;
+  SequentialAllocator<int> i_alloc{allocator};
+  ListType &container = *allocator.allocate(1);
+  new (&container) ListType(i_alloc);
+  region = container.get_allocator().get_region();
+  for (int i = 0; i < 10; i++) {
+    auto last = end(container);
+    container.insert(last, i);
+  }
+  printf("Testing list\n");
+  for_each(begin(container), end(container), [](int i){cout << i << " ";});
+  printf("\n\n");
+}
+
+void testStack() {
+
+}
+
+void testQueue() {
+
+}
+
+void testPriorityQueue() {
+
+}
+
+void testSet() {
+  get_offset() = 0;
+  SequentialAllocator<SetType> allocator;
+  SequentialAllocator<int> i_alloc{allocator};
+  SetType &container = *allocator.allocate(1);
+  new (&container) SetType(i_alloc);
+  region = container.get_allocator().get_region();
+  for (int i = 0; i < 10; i++)
+    container.insert(end(container), i);
+  printf("Testing set\n");
+  for_each(begin(container), end(container), [](int i){cout << i << " ";});
+  printf("\n\n");
+}
+
+void testMultiset() {
+
+}
+
+void testMap() {
+  get_offset() = 0;
+  SequentialAllocator<MapType> allocator;
+  SequentialAllocator<PairType> i_alloc{allocator};
+  MapType &container = *allocator.allocate(1);
+  less<> compare;
+  new (&container) MapType(compare, i_alloc);
+  region = container.get_allocator().get_region();
+  for (int i = 0; i < 10; i++)
+    container.insert({i, i});
+  printf("Testing map\n");
+  for_each(begin(container), end(container), [](PairType e){cout << e.second << " ";});
+  printf("\n\n");
+}
+
+void testMultimap() {
+
+}
+
+void testUnorderedSet() {
+
+}
+
+void testUnorderedMultiset() {
+
+}
+
+void testUnorderedMap() {
+
+}
+
+void testUnorderedMultimap() {
+
+}
+
+int main() {
+  printf("sizeof(fancy_pointer) = %lu\n", sizeof(fancy_pointer<int>));
+  testArray();
+  //testVector();
+  testDeque();
+  //testForwardList();
+  testList();
+  testStack();
+  testQueue();
+  testPriorityQueue();
+  testSet();
+  testMultiset();
+  testMap();
+  testMultimap();
+  testUnorderedSet();
+  testUnorderedMultiset();
+  testUnorderedMap();
+  testUnorderedMultimap();
 }

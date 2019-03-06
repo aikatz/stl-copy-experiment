@@ -14,28 +14,34 @@ struct FancyPointer {
   std::size_t offset = 0;
 
   FancyPointer() {}
-  FancyPointer(char* base, std::size_t offset) : base(base), offset(offset) {}
+
   FancyPointer(std::nullptr_t n) {}
-  FancyPointer(const FancyPointer<T>& p) {
-    this->base = p.base;
-    this->offset = p.offset;
-  }
-  // This seems wrong...
+
+  FancyPointer(char* base, std::size_t offset)
+    : base(base)
+    , offset(offset) {}
+
+  FancyPointer(const FancyPointer<T>& p)
+    : base (p.base)
+    , offset(p.offset) {}
+
   template<typename U>
-  explicit FancyPointer(const FancyPointer<U>& p) {
-    
-    this->base = p.base;
-    this->offset = p.offset;
-  }
+  explicit FancyPointer(const FancyPointer<U>& p)
+    : base (p.base)
+    , offset(p.offset) {}
 
   template<bool V = !std::is_void_v<T>>
-  static FancyPointer pointer_to(std::enable_if_t<V, T>& r) {
-    return *(new FancyPointer<T>((char*)std::addressof(r), 0));
+  static const FancyPointer pointer_to(std::enable_if_t<V, T>& r) {
+    return *(new FancyPointer<T>(reinterpret_cast<char*>(std::addressof(r)), 0));
   }
 
-  T* operator->() {return (T*)(base + offset);}
-  T operator*() {return *(T*)(base + offset);}
-  explicit operator bool() {return base != 0;}
+  static const T* to_address(FancyPointer<T> p) {
+    return static_cast<T*>(p.base + p.offset);
+  }
+  
+  T* operator->() const {return (T*)(base + offset);};
+  T operator*() const {return *(T*)(base + offset);}
+  explicit operator bool() const {return base != 0;}
 };
 
 template<typename T>
