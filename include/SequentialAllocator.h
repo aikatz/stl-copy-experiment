@@ -11,20 +11,19 @@
 #include <cstring>
 
 #include "config.h"
-
 #include "fancy_pointer.h"
 #include "slab_lookup_table.h"
 
 inline size_t& get_offset(){
-  static size_t os = 0;
-  return os;
+  static size_t offset = 0;
+  return offset;
 }
 
 template<class T>
 struct SequentialAllocator {
   typedef std::size_t       size_type;
   typedef T                 value_type;
-  typedef fancy_pointer<T>   pointer;
+  typedef fancy_pointer<T>  pointer;
 
   const size_type max_size;
   static size_type& offset;
@@ -77,7 +76,7 @@ struct SequentialAllocator {
     return (pointer(0, 1, old_offset));
   }
 
-  void deallocate(pointer ptr, size_type n) const {}
+  void deallocate(__attribute__((unused)) pointer ptr, __attribute__((unused)) size_type n) const {}
   
   char* get_region() const { return start_ptr; }
   
@@ -98,8 +97,5 @@ template<class T, class U>
 bool operator!= (const SequentialAllocator<T>& a, const SequentialAllocator<U>& b) {
   return !(a == b);
 }
-
-//template<typename T>
-//typename SequentialAllocator<T>::size_type SequentialAllocator<T>::offset = 0;
 
 #endif //STL_EXPLORATION_SEQUENTIAL_ALLOCATOR_H
