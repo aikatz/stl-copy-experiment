@@ -32,39 +32,25 @@ typedef multimap<int, int, std::less<>, SequentialAllocator<PairType>> MultimapT
 
 typedef unordered_set<int, std::hash<int>, std::equal_to<int>, SequentialAllocator<int>>    UnorderedSetType;
 
-template<class ContainerType>
-void test_container_with_insert(std::string container_name) {
-  using allocator_t = typename ContainerType::allocator_type;
-  ContainerType my_container;
-
-  for (int i = 0; i < 10; i++)
-    if (std::is_same<ContainerType, MapType>::value)
-      my_container.insert({i, i});
-    else
-      my_container.insert(end(my_container), i);
-
-  printf("Testing container %s\n", container_name.c_str());
-  for_each(begin(my_container), end(my_container), [](int i){cout << i << " ";});
-  printf("\n\n");
-}
-
 void testArray() {
 
 }
 
-/*
 void testVector() {
-  VectorType container;
+/*  SequentialAllocator<VectorType> allocator;
+  SequentialAllocator<int> i_alloc{allocator};
+  VectorType &container = *allocator.allocate(1);
+  new (&container) VectorType(i_alloc);
   region = container.get_allocator().get_region();
   for (int i = 0; i < 10; i++) {
     auto last = end(container);
     container.insert(last, i);
   }
-  printf("Testing forward_list\n");
+  printf("Testing list\n");
   for_each(begin(container), end(container), [](int i){cout << i << " ";});
   printf("\n\n");
+  */
 }
-*/
 
 void testDeque() {
 
@@ -75,7 +61,6 @@ void testForwardList() {
 }
 
 void testList() {
-  //get_offset() = 0;
   SequentialAllocator<ListType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   ListType &container = *allocator.allocate(1);
@@ -135,6 +120,7 @@ void testMultiset() {
 
 void testMap() {
   get_offset() = 0;
+  //memset(slab_lookup_table[0][1], 0, REGION_SIZE);
   SequentialAllocator<MapType> allocator;
   SequentialAllocator<PairType> i_alloc{allocator};
   MapType &container = *allocator.allocate(1);
