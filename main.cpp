@@ -159,7 +159,7 @@ void testUnorderedSet() {
     UnorderedSetType &container = *allocator.allocate(1);
     hash<int> hashVal;
     equal_to<int> eq_fn;
-    new (&container) UnorderedSetType(hashVal, eq_fn, i_alloc);
+    new (&container) UnorderedSetType(2, hashVal, eq_fn, i_alloc);
     region = container.get_allocator().get_region();
     for (int i = 0; i < 10; i++)
         container.insert(end(container), i);
