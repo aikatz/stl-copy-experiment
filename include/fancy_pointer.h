@@ -24,18 +24,13 @@ struct reference_helper<void> {
   using reference = void;
 };
 
-template<>
-struct reference_helper<const void> {
-    using reference = void;
-};
-
 template<typename T>
 struct fancy_pointer {
   typedef std::ptrdiff_t                           difference_type;
   typedef T                                        value_type;
   typedef fancy_pointer<T>                         pointer;
   typedef typename reference_helper<T>::reference  reference;
-  typedef typename reference_helper<const T>::reference  const_reference;
+  typedef const reference                          const_reference;
   typedef std::random_access_iterator_tag          iterator_category;
 
   int m_id;             // Machine id
@@ -92,12 +87,12 @@ struct fancy_pointer {
    */
   T *operator->() const { return (T *) (slab_lookup_table[m_id][s_id] + offset); }
   reference operator*() const { return *(T *) (slab_lookup_table[m_id][s_id] + offset); }
-    
-    /*
-     * subscript operator
-     */
-    reference operator[] (std::size_t index) { return *(to_address(*this)+sizeof(T)+index);}
-    const_reference operator[] (std::size_t index) const { return *(to_address(*this)+sizeof(T)+index);}
+
+  /*
+   * subscript operator
+   */
+  reference operator[](std::size_t index) { return *(to_address(*this) + sizeof(T) + index); }
+  const_reference operator[](std::size_t index) const { return *(to_address(*this) + sizeof(T) + index); }
 
   /*
    * Equality operators
@@ -167,12 +162,16 @@ struct fancy_pointer {
   /*
    * Pointer-value arithmetic
    */
+  fancy_pointer<T>& operator-=(const difference_type& rhs) {
+    offset -= rhs;
+    return *this;
+  }
+
   friend fancy_pointer<T> operator+(const fancy_pointer<T> &lhs, const std::size_t rhs) {
     fancy_pointer<T> tmp(lhs);
     tmp.offset += rhs;
     return tmp;
   }
-
 
   friend fancy_pointer<T> operator-(const fancy_pointer<T> &lhs, const std::size_t rhs) {
     fancy_pointer<T> tmp(lhs);
