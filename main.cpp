@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <unordered_set>
+#include <deque>
 
 #include "SequentialAllocator.h"
 
@@ -16,6 +17,7 @@ char *region;
 
 typedef pair<const int, int> PairType;
 typedef vector<int, SequentialAllocator<int>> VectorType;
+typedef deque<int, SequentialAllocator<int>> DequeType;
 typedef forward_list<int, SequentialAllocator<int>> ForwardListType;
 typedef list<int, SequentialAllocator<int>> ListType;
 typedef set<int, std::less<>, SequentialAllocator<int>> SetType;
@@ -29,7 +31,7 @@ void testArray() {
 }
 
 void testVector() {
-/*  SequentialAllocator<VectorType> allocator;
+  SequentialAllocator<VectorType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   VectorType &container = *allocator.allocate(1);
   new(&container) VectorType(i_alloc);
@@ -41,11 +43,22 @@ void testVector() {
   printf("Testing vector\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
-*/
+
 }
 
 void testDeque() {
-
+  SequentialAllocator<DequeType> allocator;
+  SequentialAllocator<int> i_alloc{allocator};
+  DequeType &container = *allocator.allocate(1);
+  new(&container) DequeType(i_alloc);
+  region = container.get_allocator().get_region();
+  for (int i = 0; i < 10; i++) {
+    auto last = end(container);
+    container.insert(last, i);
+  }
+  printf("Testing deque\n");
+  for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+  printf("\n\n");
 }
 
 void testForwardList() {
