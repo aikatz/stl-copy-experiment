@@ -33,9 +33,9 @@ struct fancy_pointer {
   typedef const reference                          const_reference;
   typedef std::random_access_iterator_tag          iterator_category;
 
-  int m_id;             // Machine id
-  int s_id;             // Slab id
-  std::size_t offset;   // Offset with the slab
+  int m_id;                 // Machine id
+  int s_id;                 // Slab id
+  difference_type offset;   // Offset with the slab
 
   fancy_pointer()
     : m_id(-1)
@@ -58,11 +58,13 @@ struct fancy_pointer {
     , s_id(p.s_id)
     , offset(p.offset) {}
 
-  template<typename U>
+    template<typename U, typename ignore = std::enable_if_t<!std::is_const_v<U> || std::is_const_v<T>>* >
   fancy_pointer(const fancy_pointer<U> &p)
     : m_id(p.m_id)
     , s_id(p.s_id)
     , offset(p.offset) {}
+
+
 
   static T *to_address(fancy_pointer<T> p) {
     return (T *) (slab_lookup_table[p.m_id][p.s_id] + p.offset);
@@ -89,7 +91,7 @@ struct fancy_pointer {
   reference operator*() const { return *(T *) (slab_lookup_table[m_id][s_id] + offset); }
 
   /*
-   * subscript operator
+   * Subscript operator
    */
   reference operator[](std::size_t index) { return *(to_address(*this) + sizeof(T) + index); }
   const_reference operator[](std::size_t index) const { return *(to_address(*this) + sizeof(T) + index); }
@@ -153,7 +155,18 @@ struct fancy_pointer {
     return offset - rhs.offset;
   }
 
+  /*friend difference_type operator-(const fancy_pointer<const T> &lhs,
+                                   const fancy_pointer<const T> &rhs) const {
+    if (lhs.m_id != rhs.m_id || lhs.s_id != rhs.s_id) {
+      assert(false && "Error: operands have different s_id or m_id fields");
+    }
+    return lhs.offset - rhs.offset;
+  }*/
+
   fancy_pointer<T> operator+(const fancy_pointer<const T> &rhs) const {
+    if (m_id != rhs.m_id || s_id != rhs.s_id) {
+      assert(false && "Error: operands have different s_id or m_id fields");
+    }
     fancy_pointer<T> tmp(*this);
     tmp.offset -= rhs;
     return tmp;
@@ -162,6 +175,11 @@ struct fancy_pointer {
   /*
    * Pointer-value arithmetic
    */
+  fancy_pointer<T>& operator+=(const difference_type& rhs) {
+    offset += rhs;
+    return *this;
+  }
+
   fancy_pointer<T>& operator-=(const difference_type& rhs) {
     offset -= rhs;
     return *this;

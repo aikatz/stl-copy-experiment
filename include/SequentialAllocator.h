@@ -53,12 +53,12 @@ struct SequentialAllocator {
     slab_lookup_table[0][1] = start_ptr;
   }
 
-  explicit SequentialAllocator(const SequentialAllocator<T>& allocator)
+  SequentialAllocator(const SequentialAllocator<T>& allocator)
     : max_size(REGION_SIZE)
     , start_ptr(allocator.start_ptr) {}
 
   template<typename U>
-  explicit SequentialAllocator(const SequentialAllocator<U>& allocator)
+  SequentialAllocator(const SequentialAllocator<U>& allocator)
     : max_size(REGION_SIZE)
     , start_ptr(allocator.start_ptr) {}
 

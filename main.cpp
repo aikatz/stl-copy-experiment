@@ -8,6 +8,7 @@
 #include <map>
 #include <unordered_set>
 #include <deque>
+#include <unordered_map>
 
 #include "SequentialAllocator.h"
 
@@ -25,6 +26,9 @@ typedef multiset<int, std::less<>, SequentialAllocator<int>> MultisetType;
 typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
 typedef multimap<int, int, std::less<>, SequentialAllocator<PairType>> MultimapType;
 typedef unordered_set<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedSetType;
+typedef unordered_multiset<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedMultisetType;
+typedef unordered_map<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMapType;
+typedef unordered_multimap<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMultimapType;
 
 void testArray() {
 
@@ -43,7 +47,7 @@ void testVector() {
   printf("Testing vector\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
-
+  free(region);
 }
 
 void testDeque() {
@@ -53,12 +57,13 @@ void testDeque() {
   new(&container) DequeType(i_alloc);
   region = container.get_allocator().get_region();
   for (int i = 0; i < 10; i++) {
-    auto last = end(container);
-    container.insert(last, i);
+    //auto last = end(container);
+    container.push_back(i);
   }
   printf("Testing deque\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testForwardList() {
@@ -78,6 +83,7 @@ void testList() {
   printf("Testing list\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testStack() {
@@ -104,6 +110,7 @@ void testSet() {
   printf("Testing set\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testMultiset() {
@@ -121,6 +128,7 @@ void testMultiset() {
   printf("Testing multiset\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testMap() {
@@ -137,6 +145,7 @@ void testMap() {
   printf("Testing map\n");
   for_each(begin(container), end(container), [](PairType e) { cout << e.second << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testMultimap() {
@@ -154,7 +163,7 @@ void testMultimap() {
   printf("Testing multimap\n");
   for_each(begin(container), end(container), [](PairType e) { cout << e.second << " "; });
   printf("\n\n");
-
+  free(region);
 }
 
 void testUnorderedSet() {
@@ -166,21 +175,71 @@ void testUnorderedSet() {
   equal_to<> eq_fn;
   new(&container) UnorderedSetType(2, hashVal, eq_fn, i_alloc);
   region = container.get_allocator().get_region();
-  for (int i = 0; i < 10; i++)
+  for (int i = 0; i < 10; i++){
     container.insert(end(container), i);
+  }
   printf("Testing unordered set\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
   printf("\n\n");
+  free(region);
 }
 
 void testUnorderedMultiset() {
+    get_offset() = 0;
+    SequentialAllocator<UnorderedMultisetType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    UnorderedMultisetType &container = *allocator.allocate(1);
+    hash<int> hashVal;
+    equal_to<> eq_fn;
+    
+    //breaks for all bucket values except 3 when inserting same value multiple times?
+    new(&container) UnorderedMultisetType(10, hashVal, eq_fn, i_alloc);
+    region = container.get_allocator().get_region();
+    for (int i = 0; i < 5; i++){
+        container.insert(end(container), i);
+        container.insert(end(container), 6);
+    }
+    printf("Testing unordered multiset\n");
+    for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 void testUnorderedMap() {
+    get_offset() = 0;
+    SequentialAllocator<UnorderedMapType> allocator;
+    SequentialAllocator<PairType> i_alloc{allocator};
+    UnorderedMapType &container = *allocator.allocate(1);
+    hash<int> hashVal;
+    equal_to<> eq_fn;
+    new(&container) UnorderedMapType(2, hashVal, eq_fn, i_alloc);
+    region = container.get_allocator().get_region();
+    for (int i = 0; i < 10; i++){
+        container.insert({i, i});
+    }
+    printf("Testing unordered map\n");
+    for_each(begin(container), end(container), [](PairType e) { cout << e.second << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 void testUnorderedMultimap() {
-
+    get_offset() = 0;
+    SequentialAllocator<UnorderedMultimapType> allocator;
+    SequentialAllocator<PairType> i_alloc{allocator};
+    UnorderedMultimapType &container = *allocator.allocate(1);
+    hash<int> hashVal;
+    equal_to<> eq_fn;
+    new(&container) UnorderedMultimapType(3, hashVal, eq_fn, i_alloc);
+    region = container.get_allocator().get_region();
+    for (int i = 0; i < 5; i++){
+        container.insert({i, i});
+        container.insert({1, 1});
+    }
+    printf("Testing unordered multimap\n");
+    for_each(begin(container), end(container), [](PairType e) { cout << e.second << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 int main() {
