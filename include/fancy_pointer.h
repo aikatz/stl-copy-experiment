@@ -40,12 +40,12 @@ struct fancy_pointer {
   fancy_pointer()
     : m_id(-1)
     , s_id(-1)
-    , offset(0xdeadbeef) {}
+    , offset(0) {}
 
   fancy_pointer(__attribute__((unused)) std::nullptr_t n)
     : m_id(-1)
     , s_id(-1),
-    offset(0xdeadbeef) {}
+    offset(0) {}
 
   fancy_pointer(int m, int s, std::size_t o)
     : m_id(m)
