@@ -22,45 +22,27 @@ inline size_t& get_offset(){
 
 template<class T>
 struct SequentialAllocator {
-  typedef std::size_t       size_type;
-  typedef T                 value_type;
-  typedef fancy_pointer<T>  pointer;
+  typedef std::size_t            size_type;
+  typedef T                      value_type;
+  typedef fancy_pointer<T>       pointer;
+  typedef fancy_pointer<const T> const_pointer;
 
   const size_type max_size;
   static size_type& offset;
-  char* start_ptr;
 
   SequentialAllocator()
     : max_size (REGION_SIZE) {
       
-    posix_memalign(reinterpret_cast<void**>(&start_ptr), getpagesize(), REGION_SIZE);
-    std::memset(start_ptr, 0, REGION_SIZE);
-
-    /*
-    // Place 0xdeadbeef at the start of the region
-    start_ptr[0] = (char)0xef;
-    start_ptr[1] = (char)0xbe;
-    start_ptr[2] = (char)0xad;
-    start_ptr[3] = (char)0xde;
-
-    // Place 0xdeadbeef at the end of the region
-    start_ptr[REGION_SIZE - 1] = (char)0xde;
-    start_ptr[REGION_SIZE - 2] = (char)0xad;
-    start_ptr[REGION_SIZE - 3] = (char)0xbe;
-    start_ptr[REGION_SIZE - 4] = (char)0xef;
-     */
-
-    slab_lookup_table[0][1] = start_ptr;
+    posix_memalign(reinterpret_cast<void**>(&slab_lookup_table[0][1]), getpagesize(), REGION_SIZE);
+    std::memset(slab_lookup_table[0][1], 0, REGION_SIZE);
   }
 
   SequentialAllocator(const SequentialAllocator<T>& allocator)
-    : max_size(REGION_SIZE)
-    , start_ptr(allocator.start_ptr) {}
+    : max_size(REGION_SIZE) {}
 
   template<typename U>
   SequentialAllocator(const SequentialAllocator<U>& allocator)
-    : max_size(REGION_SIZE)
-    , start_ptr(allocator.start_ptr) {}
+    : max_size(REGION_SIZE) {}
 
   ~SequentialAllocator() {
     // Normally we'd free the region here, but it's done in main
@@ -73,16 +55,16 @@ struct SequentialAllocator {
     std::size_t old_offset = offset;
     offset += n * sizeof(T);
     printf("[INFO] Allocated %lu bytes at offset %lu (address = %p)\n", n * sizeof(T), old_offset,
-           static_cast<void*>(start_ptr + old_offset));
+           static_cast<void*>(slab_lookup_table[0][1] + old_offset));
     return (pointer(0, 1, old_offset));
   }
 
   void deallocate(__attribute__((unused)) pointer ptr, __attribute__((unused)) size_type n) const {}
   
-  char* get_region() const { return start_ptr; }
+  char* get_region() const { return slab_lookup_table[0][1]; }
   
   bool address_was_allocated(uintptr_t addr) const {
-    return (addr >= (uintptr_t)start_ptr && addr < (uintptr_t)start_ptr + max_size);
+    return (addr >= (uintptr_t)slab_lookup_table[0][1] && addr < (uintptr_t)slab_lookup_table[0][1] + max_size);
   }
 };
 
@@ -91,7 +73,7 @@ std::size_t& SequentialAllocator<T>::offset = get_offset();
 
 template<class T, class U>
 bool operator== (const SequentialAllocator<T>& a, const SequentialAllocator<U>& b) {
-  return a.start_ptr == b.start_ptr;
+  return a.slab_lookup_table[0][1] == b.slab_lookup_table[0][1];
 }
 
 template<class T, class U>

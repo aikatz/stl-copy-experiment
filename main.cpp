@@ -35,14 +35,14 @@ void testArray() {
 }
 
 void testVector() {
+  get_offset() = 0;
   SequentialAllocator<VectorType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   VectorType &container = *allocator.allocate(1);
   new(&container) VectorType(i_alloc);
   region = container.get_allocator().get_region();
-  for (int i = 0; i < 10; i++) {
-    auto last = end(container);
-    container.insert(last, i);
+  for (int i = 290; i < 300; i++) {
+    container.push_back(i);
   }
   printf("Testing vector\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
@@ -51,6 +51,7 @@ void testVector() {
 }
 
 void testDeque() {
+  get_offset() = 0;
   SequentialAllocator<DequeType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   DequeType &container = *allocator.allocate(1);
@@ -246,7 +247,7 @@ int main() {
   testArray();
   //testVector();
   testDeque();
-  //testForwardList();
+  testForwardList();
   testList();
   testStack();
   testQueue();

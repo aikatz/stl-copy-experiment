@@ -42,7 +42,6 @@ struct fancy_pointer {
     , s_id(-1)
     , offset(0xdeadbeef) {}
 
-
   fancy_pointer(__attribute__((unused)) std::nullptr_t n)
     : m_id(-1)
     , s_id(-1),
@@ -58,13 +57,11 @@ struct fancy_pointer {
     , s_id(p.s_id)
     , offset(p.offset) {}
 
-    template<typename U, typename ignore = std::enable_if_t<!std::is_const_v<U> || std::is_const_v<T>>* >
+  template<typename U, typename ignore = std::enable_if_t<!std::is_const_v<U> || std::is_const_v<T>>* >
   fancy_pointer(const fancy_pointer<U> &p)
     : m_id(p.m_id)
     , s_id(p.s_id)
     , offset(p.offset) {}
-
-
 
   static T *to_address(fancy_pointer<T> p) {
     return (T *) (slab_lookup_table[p.m_id][p.s_id] + p.offset);
@@ -124,7 +121,7 @@ struct fancy_pointer {
    * Pre/post increment/decrement
    */
   fancy_pointer<T> &operator++() {
-    offset++;
+    offset += sizeof(T);
     return *this;
   }
 
@@ -135,7 +132,7 @@ struct fancy_pointer {
   }
 
   fancy_pointer<T> &operator--() {
-    offset--;
+    offset -= sizeof(T);
     return *this;
   }
 
@@ -155,20 +152,12 @@ struct fancy_pointer {
     return offset - rhs.offset;
   }
 
-  /*friend difference_type operator-(const fancy_pointer<const T> &lhs,
-                                   const fancy_pointer<const T> &rhs) const {
-    if (lhs.m_id != rhs.m_id || lhs.s_id != rhs.s_id) {
-      assert(false && "Error: operands have different s_id or m_id fields");
-    }
-    return lhs.offset - rhs.offset;
-  }*/
-
   fancy_pointer<T> operator+(const fancy_pointer<const T> &rhs) const {
     if (m_id != rhs.m_id || s_id != rhs.s_id) {
       assert(false && "Error: operands have different s_id or m_id fields");
     }
     fancy_pointer<T> tmp(*this);
-    tmp.offset -= rhs;
+    tmp.offset += rhs.offset;
     return tmp;
   }
 
@@ -176,24 +165,24 @@ struct fancy_pointer {
    * Pointer-value arithmetic
    */
   fancy_pointer<T>& operator+=(const difference_type& rhs) {
-    offset += rhs;
+    offset += rhs * sizeof(T);
     return *this;
   }
 
   fancy_pointer<T>& operator-=(const difference_type& rhs) {
-    offset -= rhs;
+    offset -= rhs * sizeof(T);
     return *this;
   }
 
   friend fancy_pointer<T> operator+(const fancy_pointer<T> &lhs, const std::size_t rhs) {
     fancy_pointer<T> tmp(lhs);
-    tmp.offset += rhs;
+    tmp.offset += rhs * sizeof(T);
     return tmp;
   }
 
   friend fancy_pointer<T> operator-(const fancy_pointer<T> &lhs, const std::size_t rhs) {
     fancy_pointer<T> tmp(lhs);
-    tmp.offset -= rhs;
+    tmp.offset -= rhs * sizeof(T);
     return tmp;
   }
 };
