@@ -3,6 +3,7 @@
 
 #include <forward_list>
 #include <list>
+#include <stack>
 #include <set>
 #include <vector>
 #include <map>
@@ -21,6 +22,7 @@ typedef vector<int, SequentialAllocator<int>> VectorType;
 typedef deque<int, SequentialAllocator<int>> DequeType;
 typedef forward_list<int, SequentialAllocator<int>> ForwardListType;
 typedef list<int, SequentialAllocator<int>> ListType;
+typedef stack<int, std::deque<int, SequentialAllocator<int>>> StackType;
 typedef set<int, std::less<>, SequentialAllocator<int>> SetType;
 typedef multiset<int, std::less<>, SequentialAllocator<int>> MultisetType;
 typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
@@ -68,7 +70,18 @@ void testDeque() {
 }
 
 void testForwardList() {
-
+    SequentialAllocator<ForwardListType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    ForwardListType &container = *allocator.allocate(1);
+    new(&container) ForwardListType(i_alloc);
+    region = container.get_allocator().get_region();
+    for (int i = 50; i < 60; i++) {
+        container.push_front(i);
+    }
+    printf("Testing forward list\n");
+    for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 void testList() {
@@ -89,6 +102,26 @@ void testList() {
 
 void testStack() {
 
+    SequentialAllocator<StackType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    StackType &container = *allocator.allocate(1);
+    DequeType d(i_alloc);
+    new(&container) StackType(d);
+    
+    region = d.get_allocator().get_region();
+    for (int i = 110; i < 120; i++) {
+        container.push(i);
+    }
+    printf("Testing stack\n");
+
+    while (!container.empty()){
+        cout << container.top() << "";
+        container.pop();
+    }
+
+    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 void testQueue() {
@@ -246,18 +279,18 @@ void testUnorderedMultimap() {
 int main() {
   testArray();
   //testVector();
-  testDeque();
-  testForwardList();
-  testList();
+//  testDeque();
+ // testForwardList();
+//  testList();
   testStack();
-  testQueue();
-  testPriorityQueue();
-  testSet();
-  testMultiset();
-  testMap();
-  testMultimap();
-  testUnorderedSet();
-  testUnorderedMultiset();
-  testUnorderedMap();
-  testUnorderedMultimap();
+//  testQueue();
+//  testPriorityQueue();
+//  testSet();
+//  testMultiset();
+//  testMap();
+//  testMultimap();
+//  testUnorderedSet();
+//  testUnorderedMultiset();
+//  testUnorderedMap();
+//  testUnorderedMultimap();
 }
