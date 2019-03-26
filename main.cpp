@@ -9,6 +9,7 @@
 #include <map>
 #include <unordered_set>
 #include <deque>
+#include <queue>
 #include <unordered_map>
 
 #include "SequentialAllocator.h"
@@ -23,6 +24,8 @@ typedef deque<int, SequentialAllocator<int>> DequeType;
 typedef forward_list<int, SequentialAllocator<int>> ForwardListType;
 typedef list<int, SequentialAllocator<int>> ListType;
 typedef stack<int, std::deque<int, SequentialAllocator<int>>> StackType;
+typedef queue<int, std::deque<int, SequentialAllocator<int>>> QueueType;
+typedef priority_queue<int,std::vector<int, SequentialAllocator<int>>, std::less<int>> PriorityQueueType;
 typedef set<int, std::less<>, SequentialAllocator<int>> SetType;
 typedef multiset<int, std::less<>, SequentialAllocator<int>> MultisetType;
 typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
@@ -107,7 +110,7 @@ void testStack() {
     StackType &container = *allocator.allocate(1);
     DequeType d(i_alloc);
     new(&container) StackType(d);
-    
+
     region = d.get_allocator().get_region();
     for (int i = 110; i < 120; i++) {
         container.push(i);
@@ -115,7 +118,7 @@ void testStack() {
     printf("Testing stack\n");
 
     while (!container.empty()){
-        cout << container.top() << "";
+        cout << container.top() << " ";
         container.pop();
     }
 
@@ -126,9 +129,53 @@ void testStack() {
 
 void testQueue() {
 
+
+    SequentialAllocator<QueueType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    QueueType &container = *allocator.allocate(1);
+    DequeType d(i_alloc);
+    new(&container) QueueType(d);
+
+    region = d.get_allocator().get_region();
+    for (int i = 110; i < 120; i++) {
+        container.push(i);
+    }
+    printf("Testing queue\n");
+
+    while (!container.empty()){
+        cout << container.front() << " ";
+        container.pop();
+    }
+
+    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
+
 }
 
 void testPriorityQueue() {
+
+    SequentialAllocator<PriorityQueueType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    PriorityQueueType &container = *allocator.allocate(1);
+    VectorType v(i_alloc);
+    less<int> compare;
+    new(&container) PriorityQueueType(v, compare);
+
+    region = v.get_allocator().get_region();
+    for (int i = 110; i < 120; i++) {
+        container.push(i);
+    }
+    printf("Testing queue\n");
+
+    while (!container.empty()){
+        cout << container.front() << " ";
+        container.pop();
+    }
+
+    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
 
 }
 
