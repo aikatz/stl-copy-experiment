@@ -3,6 +3,7 @@
 
 #include <forward_list>
 #include <list>
+#include <stack>
 #include <set>
 #include <vector>
 #include <map>
@@ -23,14 +24,15 @@ using VectorType = vector<int, IntAllocType>;
 using DequeType = deque<int, IntAllocType>;
 using ForwardListType = forward_list<int, IntAllocType>;
 using ListType = list<int, IntAllocType>;
-using SetType = set<int, std::less<>, IntAllocType>;
-using MultisetType = multiset<int, std::less<>, IntAllocType>;
-using MapType = map<int, int, std::less<>, PairAllocType>;
-using MultimapType = multimap<int, int, std::less<>, PairAllocType>;
-using UnorderedSetType = unordered_set<int, std::hash<int>, std::equal_to<>, IntAllocType>;
-using UnorderedMultisetType = unordered_multiset<int, std::hash<int>, std::equal_to<>, IntAllocType>;
-using UnorderedMapType = unordered_map<int, int, std::hash<int>, std::equal_to<>, PairAllocType>;
-using UnorderedMultimapType = unordered_multimap<int, int, std::hash<int>, std::equal_to<>, PairAllocType>;
+using StackType = stack<int, DequeType>;
+using SetType = set<int, less<>, IntAllocType>;
+using MultisetType = multiset<int, less<>, IntAllocType>;
+using MapType = map<int, int, less<>, PairAllocType>;
+using MultimapType = multimap<int, int, less<>, PairAllocType>;
+using UnorderedSetType = unordered_set<int, hash<int>, equal_to<>, IntAllocType>;
+using UnorderedMultisetType = unordered_multiset<int, hash<int>, equal_to<>, IntAllocType>;
+using UnorderedMapType = unordered_map<int, int, hash<int>, equal_to<>, PairAllocType>;
+using UnorderedMultimapType = unordered_multimap<int, int, hash<int>, equal_to<>, PairAllocType>;
 
 void testArray() {
 
@@ -70,7 +72,19 @@ void testDeque() {
 }
 
 void testForwardList() {
-
+    get_offset() = 0;
+    SequentialAllocator<ForwardListType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    ForwardListType &container = *allocator.allocate(1);
+    new(&container) ForwardListType(i_alloc);
+    region = container.get_allocator().get_region();
+    for (int i = 50; i < 60; i++) {
+        container.push_front(i);
+    }
+    printf("Testing forward list\n");
+    for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+    printf("\n\n");
+    free(region);
 }
 
 void testList() {
@@ -91,7 +105,24 @@ void testList() {
 }
 
 void testStack() {
-
+    get_offset() = 0;
+    SequentialAllocator<StackType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    StackType &container = *allocator.allocate(1);
+    DequeType d(i_alloc);
+    new(&container) StackType(d);
+    
+    region = d.get_allocator().get_region();
+    for (int i = 110; i < 120; i++) {
+        container.push(i);
+    }
+    printf("Testing stack\n");
+    while (!container.empty()){
+        cout << container.top() << " ";
+        container.pop();
+    }
+    printf("\n\n");
+    free(region);
 }
 
 void testQueue() {
@@ -247,7 +278,6 @@ void testUnorderedMultimap() {
 }
 
 int main() {
-  testFancyPointer();
   testArray();
   testVector();
   testDeque();
