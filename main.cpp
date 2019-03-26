@@ -155,27 +155,26 @@ void testQueue() {
 
 void testPriorityQueue() {
 
-//    SequentialAllocator<PriorityQueueType> allocator;
-//    SequentialAllocator<int> i_alloc{allocator};
-//    PriorityQueueType &container = *allocator.allocate(1);
-//    VectorType v(i_alloc);
-//    less<int> compare;
-//    new(&container) PriorityQueueType(v, compare);
-//
-//    region = v.get_allocator().get_region();
-//    for (int i = 110; i < 120; i++) {
-//        container.push(i);
-//    }
-//    printf("Testing queue\n");
-//
-//    while (!container.empty()){
-//        cout << container.front() << " ";
-//        container.pop();
-//    }
-//
-//    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
-//    printf("\n\n");
-//    free(region);
+    SequentialAllocator<PriorityQueueType> allocator;
+    SequentialAllocator<int> i_alloc{allocator};
+    PriorityQueueType &container = *allocator.allocate(1);
+    VectorType v(i_alloc);
+    less<int> compare;
+    new(&container) PriorityQueueType(compare, v);
+
+    region = v.get_allocator().get_region();
+    for (int i = 125; i < 135; i++) {
+        container.push(i);
+    }
+    printf("Testing priority queue\n");
+
+    while (!container.empty()){
+        cout << container.top() << " ";
+        container.pop();
+    }
+
+    printf("\n\n");
+    free(region);
 
 }
 
@@ -324,7 +323,7 @@ void testUnorderedMultimap() {
 }
 
 int main() {
-  testArray();
+//  testArray();
   testVector();
   testDeque();
   testForwardList();
@@ -337,7 +336,7 @@ int main() {
   testMap();
   testMultimap();
   testUnorderedSet();
-  testUnorderedMultiset();
+//  testUnorderedMultiset();
   testUnorderedMap();
-  testUnorderedMultimap();
+//  testUnorderedMultimap();
 }
