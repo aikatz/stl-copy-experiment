@@ -18,22 +18,24 @@ using namespace std;
 
 char *region;
 
-typedef pair<const int, int> PairType;
-typedef vector<int, SequentialAllocator<int>> VectorType;
-typedef deque<int, SequentialAllocator<int>> DequeType;
-typedef forward_list<int, SequentialAllocator<int>> ForwardListType;
-typedef list<int, SequentialAllocator<int>> ListType;
-typedef stack<int, std::deque<int, SequentialAllocator<int>>> StackType;
-typedef queue<int, std::deque<int, SequentialAllocator<int>>> QueueType;
-typedef priority_queue<int,std::vector<int, SequentialAllocator<int>>, std::less<int>> PriorityQueueType;
-typedef set<int, std::less<>, SequentialAllocator<int>> SetType;
-typedef multiset<int, std::less<>, SequentialAllocator<int>> MultisetType;
-typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
-typedef multimap<int, int, std::less<>, SequentialAllocator<PairType>> MultimapType;
-typedef unordered_set<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedSetType;
-typedef unordered_multiset<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedMultisetType;
-typedef unordered_map<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMapType;
-typedef unordered_multimap<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMultimapType;
+using PairType = pair<const int, int>;
+using IntAllocType = SequentialAllocator<int>;
+using PairAllocType = SequentialAllocator<PairType>;
+using VectorType = vector<int, IntAllocType>;
+using DequeType = deque<int, IntAllocType>;
+using ForwardListType = forward_list<int, IntAllocType>;
+using ListType = list<int, IntAllocType>;
+using StackType = stack<int, DequeType>;
+using QueueType = queue<int, DequeType>;
+using PriorityQueueType = priority_queue<int,std::vector<int, SequentialAllocator<int>>, std::less<int>>;
+using SetType = set<int, less<>, IntAllocType>;
+using MultisetType = multiset<int, less<>, IntAllocType>;
+using MapType = map<int, int, less<>, PairAllocType>;
+using MultimapType = multimap<int, int, less<>, PairAllocType>;
+using UnorderedSetType = unordered_set<int, hash<int>, equal_to<>, IntAllocType>;
+using UnorderedMultisetType = unordered_multiset<int, hash<int>, equal_to<>, IntAllocType>;
+using UnorderedMapType = unordered_map<int, int, hash<int>, equal_to<>, PairAllocType>;
+using UnorderedMultimapType = unordered_multimap<int, int, hash<int>, equal_to<>, PairAllocType>;
 
 void testArray() {
 
@@ -62,7 +64,7 @@ void testDeque() {
   DequeType &container = *allocator.allocate(1);
   new(&container) DequeType(i_alloc);
   region = container.get_allocator().get_region();
-  for (int i = 0; i < 10; i++) {
+  for (int i = 290; i < 300; i++) {
     //auto last = end(container);
     container.push_back(i);
   }
@@ -73,6 +75,7 @@ void testDeque() {
 }
 
 void testForwardList() {
+    get_offset() = 0;
     SequentialAllocator<ForwardListType> allocator;
     SequentialAllocator<int> i_alloc{allocator};
     ForwardListType &container = *allocator.allocate(1);
@@ -88,6 +91,7 @@ void testForwardList() {
 }
 
 void testList() {
+  get_offset() = 0;
   SequentialAllocator<ListType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   ListType &container = *allocator.allocate(1);
@@ -104,7 +108,7 @@ void testList() {
 }
 
 void testStack() {
-
+    get_offset() = 0;
     SequentialAllocator<StackType> allocator;
     SequentialAllocator<int> i_alloc{allocator};
     StackType &container = *allocator.allocate(1);
@@ -116,20 +120,17 @@ void testStack() {
         container.push(i);
     }
     printf("Testing stack\n");
-
     while (!container.empty()){
         cout << container.top() << " ";
         container.pop();
     }
-
-    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
     printf("\n\n");
     free(region);
 }
 
 void testQueue() {
 
-
+    get_offset() = 0;
     SequentialAllocator<QueueType> allocator;
     SequentialAllocator<int> i_alloc{allocator};
     QueueType &container = *allocator.allocate(1);
@@ -137,7 +138,7 @@ void testQueue() {
     new(&container) QueueType(d);
 
     region = d.get_allocator().get_region();
-    for (int i = 110; i < 120; i++) {
+    for (int i = 15; i < 25; i++) {
         container.push(i);
     }
     printf("Testing queue\n");
@@ -147,7 +148,6 @@ void testQueue() {
         container.pop();
     }
 
-    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
     printf("\n\n");
     free(region);
 
@@ -155,27 +155,27 @@ void testQueue() {
 
 void testPriorityQueue() {
 
-    SequentialAllocator<PriorityQueueType> allocator;
-    SequentialAllocator<int> i_alloc{allocator};
-    PriorityQueueType &container = *allocator.allocate(1);
-    VectorType v(i_alloc);
-    less<int> compare;
-    new(&container) PriorityQueueType(v, compare);
-
-    region = v.get_allocator().get_region();
-    for (int i = 110; i < 120; i++) {
-        container.push(i);
-    }
-    printf("Testing queue\n");
-
-    while (!container.empty()){
-        cout << container.front() << " ";
-        container.pop();
-    }
-
-    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
-    printf("\n\n");
-    free(region);
+//    SequentialAllocator<PriorityQueueType> allocator;
+//    SequentialAllocator<int> i_alloc{allocator};
+//    PriorityQueueType &container = *allocator.allocate(1);
+//    VectorType v(i_alloc);
+//    less<int> compare;
+//    new(&container) PriorityQueueType(v, compare);
+//
+//    region = v.get_allocator().get_region();
+//    for (int i = 110; i < 120; i++) {
+//        container.push(i);
+//    }
+//    printf("Testing queue\n");
+//
+//    while (!container.empty()){
+//        cout << container.front() << " ";
+//        container.pop();
+//    }
+//
+//    //for_each(begin(container), end(container), [](int i) { cout << i << " "; });
+//    printf("\n\n");
+//    free(region);
 
 }
 
@@ -325,19 +325,19 @@ void testUnorderedMultimap() {
 
 int main() {
   testArray();
-  //testVector();
-//  testDeque();
- // testForwardList();
-//  testList();
+  testVector();
+  testDeque();
+  testForwardList();
+  testList();
   testStack();
-//  testQueue();
-//  testPriorityQueue();
-//  testSet();
-//  testMultiset();
-//  testMap();
-//  testMultimap();
-//  testUnorderedSet();
-//  testUnorderedMultiset();
-//  testUnorderedMap();
-//  testUnorderedMultimap();
+  testQueue();
+  testPriorityQueue();
+  testSet();
+  testMultiset();
+  testMap();
+  testMultimap();
+  testUnorderedSet();
+  testUnorderedMultiset();
+  testUnorderedMap();
+  testUnorderedMultimap();
 }
