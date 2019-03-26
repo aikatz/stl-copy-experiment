@@ -79,7 +79,7 @@ struct fancy_pointer {
     }
   }
 
-  explicit operator bool() const { return slab_lookup_table[m_id][s_id] != nullptr; }
+  explicit operator bool() const { return *this != nullptr; }
 
   /*
    * De-reference operators

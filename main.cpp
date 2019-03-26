@@ -16,19 +16,21 @@ using namespace std;
 
 char *region;
 
-typedef pair<const int, int> PairType;
-typedef vector<int, SequentialAllocator<int>> VectorType;
-typedef deque<int, SequentialAllocator<int>> DequeType;
-typedef forward_list<int, SequentialAllocator<int>> ForwardListType;
-typedef list<int, SequentialAllocator<int>> ListType;
-typedef set<int, std::less<>, SequentialAllocator<int>> SetType;
-typedef multiset<int, std::less<>, SequentialAllocator<int>> MultisetType;
-typedef map<int, int, std::less<>, SequentialAllocator<PairType>> MapType;
-typedef multimap<int, int, std::less<>, SequentialAllocator<PairType>> MultimapType;
-typedef unordered_set<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedSetType;
-typedef unordered_multiset<int, std::hash<int>, std::equal_to<>, SequentialAllocator<int>> UnorderedMultisetType;
-typedef unordered_map<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMapType;
-typedef unordered_multimap<int, int, std::hash<int>, std::equal_to<>, SequentialAllocator<PairType>> UnorderedMultimapType;
+using PairType = pair<const int, int>;
+using IntAllocType = SequentialAllocator<int>;
+using PairAllocType = SequentialAllocator<PairType>;
+using VectorType = vector<int, IntAllocType>;
+using DequeType = deque<int, IntAllocType>;
+using ForwardListType = forward_list<int, IntAllocType>;
+using ListType = list<int, IntAllocType>;
+using SetType = set<int, std::less<>, IntAllocType>;
+using MultisetType = multiset<int, std::less<>, IntAllocType>;
+using MapType = map<int, int, std::less<>, PairAllocType>;
+using MultimapType = multimap<int, int, std::less<>, PairAllocType>;
+using UnorderedSetType = unordered_set<int, std::hash<int>, std::equal_to<>, IntAllocType>;
+using UnorderedMultisetType = unordered_multiset<int, std::hash<int>, std::equal_to<>, IntAllocType>;
+using UnorderedMapType = unordered_map<int, int, std::hash<int>, std::equal_to<>, PairAllocType>;
+using UnorderedMultimapType = unordered_multimap<int, int, std::hash<int>, std::equal_to<>, PairAllocType>;
 
 void testArray() {
 
@@ -57,7 +59,7 @@ void testDeque() {
   DequeType &container = *allocator.allocate(1);
   new(&container) DequeType(i_alloc);
   region = container.get_allocator().get_region();
-  for (int i = 0; i < 10; i++) {
+  for (int i = 290; i < 300; i++) {
     //auto last = end(container);
     container.push_back(i);
   }
@@ -72,6 +74,7 @@ void testForwardList() {
 }
 
 void testList() {
+  get_offset() = 0;
   SequentialAllocator<ListType> allocator;
   SequentialAllocator<int> i_alloc{allocator};
   ListType &container = *allocator.allocate(1);
@@ -244,8 +247,9 @@ void testUnorderedMultimap() {
 }
 
 int main() {
+  testFancyPointer();
   testArray();
-  //testVector();
+  testVector();
   testDeque();
   testForwardList();
   testList();

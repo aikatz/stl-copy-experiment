@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-#define REGION_SIZE (1024)
+#define REGION_SIZE (16384)
 #define USE_FANCY_POINTER
 
 
