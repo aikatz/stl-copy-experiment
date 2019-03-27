@@ -149,7 +149,7 @@ struct fancy_pointer {
     if (m_id != rhs.m_id || s_id != rhs.s_id) {
       assert(false && "Error: operands have different s_id or m_id fields");
     }
-    return offset - rhs.offset;
+    return (offset - rhs.offset) / sizeof(T);
   }
 
   fancy_pointer<T> operator+(const fancy_pointer<const T> &rhs) const {
