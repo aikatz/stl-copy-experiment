@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 
+#include <array>
 #include <forward_list>
 #include <list>
 #include <stack>
@@ -26,7 +27,7 @@ using ForwardListType = forward_list<int, IntAllocType>;
 using ListType = list<int, IntAllocType>;
 using StackType = stack<int, DequeType>;
 using QueueType = queue<int, DequeType>;
-using PriorityQueueType = priority_queue<int, VectorType, std::less<int>>;
+using PriorityQueueType = priority_queue<int, VectorType, std::less<>>;
 using SetType = set<int, less<>, IntAllocType>;
 using MultisetType = multiset<int, less<>, IntAllocType>;
 using MapType = map<int, int, less<>, PairAllocType>;
@@ -35,10 +36,6 @@ using UnorderedSetType = unordered_set<int, hash<int>, equal_to<>, IntAllocType>
 using UnorderedMultisetType = unordered_multiset<int, hash<int>, equal_to<>, IntAllocType>;
 using UnorderedMapType = unordered_map<int, int, hash<int>, equal_to<>, PairAllocType>;
 using UnorderedMultimapType = unordered_multimap<int, int, hash<int>, equal_to<>, PairAllocType>;
-
-void testArray() {
-
-}
 
 void testVector() {
   get_offset() = 0;
@@ -158,7 +155,7 @@ void testPriorityQueue() {
   SequentialAllocator<int> i_alloc{allocator};
   PriorityQueueType &container = *allocator.allocate(1);
   VectorType v(i_alloc);
-  less<int> compare;
+  less<> compare;
   new(&container) PriorityQueueType(compare, v);
 
   region = v.get_allocator().get_region();
@@ -271,12 +268,11 @@ void testUnorderedMultiset() {
   hash<int> hashVal;
   equal_to<> eq_fn;
 
-  //breaks for all bucket values except 3 when inserting same value multiple times?
   new(&container) UnorderedMultisetType(10, hashVal, eq_fn, i_alloc);
   region = container.get_allocator().get_region();
-  for (int i = 0; i < 5; i++) {
+  for (int i = 120; i < 130; i++) {
     container.insert(end(container), i);
-    container.insert(end(container), 6);
+    container.insert(end(container), i);
   }
   printf("Testing unordered multiset\n");
   for_each(begin(container), end(container), [](int i) { cout << i << " "; });
@@ -322,7 +318,6 @@ void testUnorderedMultimap() {
 }
 
 int main() {
-  testArray();
   testVector();
   testDeque();
   testForwardList();

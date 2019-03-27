@@ -90,8 +90,8 @@ struct fancy_pointer {
   /*
    * Subscript operator
    */
-  reference operator[](std::size_t index) { return *(to_address(*this) + sizeof(T) + index); }
-  const_reference operator[](std::size_t index) const { return *(to_address(*this) + sizeof(T) + index); }
+  reference operator[](std::size_t index) { return *(to_address(*this) + index); }
+  const_reference operator[](std::size_t index) const { return *(to_address(*this) + index); }
 
   /*
    * Equality operators
